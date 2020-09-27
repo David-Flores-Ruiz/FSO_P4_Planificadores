@@ -8,6 +8,9 @@ extern int unblockevent;
 QUEUE ready;
 QUEUE waitinginevent[MAXTHREAD];
 
+#define QUANTUM 2	// Para lograr RR con q=2
+int q = 0;	// Contar 2 quantum de tiempo
+
 void scheduler(int arguments)
 {
 	int old,next;
@@ -44,7 +47,20 @@ void scheduler(int arguments)
 			threads[callingthread].status=READY;
 			_enqueue(&ready,callingthread);
 	}
-
+	
+	if(event==TIMER)// Si el evento es el TIMER
+	{
+		q++;	// Incrementamos el Quantum de tiempo en 1
+		
+		if(q==QUANTUM)	// QUANTUM = 2
+		{
+			// El hilo que está en ejecución se pone en el estado de listo
+			threads[callingthread].status=READY;
+			_enqueue(&ready,callingthread);	// y se va a la cola de listos
+			changethread=1;	// Hacer cambio de hilo
+			q = 0;	// Reiniciamos los quantum
+		}
+	}
 	
 	if(changethread)
 	{
