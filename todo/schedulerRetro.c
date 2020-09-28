@@ -7,7 +7,7 @@ extern int totthreads;	// Para saber cuando solo hay 1 proceso y que no desciend
 extern int blockevent;
 extern int unblockevent;
 
-#define LEVELS 8	// Numero de niveles de prioridad
+#define LEVELS 100	// Numero de niveles de prioridad
 int priority[LEVELS];	// Llevar la cuenta
 
 QUEUE ready[LEVELS];	// Varias colas de listos por niveles de prioridad
@@ -60,10 +60,10 @@ void scheduler(int arguments)
 			priority[callingthread]++;	// Aumentamos un nivel de prioridad
 		
 		// Si es el unico proceso, no debe descender niveles de prioridad
-//		if(totthreads==1)
-//		{
-//			priority[callingthread]--;	// Compensamos para NO descender
-//		}
+		if(totthreads==0)	// 0 porque, tomamos en cuenta al hilo 0
+		{
+			priority[callingthread]--;	// Compensamos para NO descender
+		}
 		
 		threads[callingthread].status=READY;	// El hilo en ejecución se pone en estado de listo
 		_enqueue(&ready[priority[callingthread]],callingthread);	// y se va a la cola de listos
